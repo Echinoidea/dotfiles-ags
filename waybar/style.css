@@ -1,0 +1,183 @@
+/*:root {*/
+/*  --base: #191724;*/
+/*  --surface: #1f1d2e;*/
+/*  --overlay: #26233a;*/
+/**/
+/*  --muted: #6e6a86;*/
+/*  --subtle: #908caa;*/
+/*  --text: #e0def4;*/
+/**/
+/*  --love: #eb6f92;*/
+/*  --gold: #f6c177;*/
+/*  --rose: #ebbcba;*/
+/*  --pine: #31748f;*/
+/*  --foam: #9ccfd8;*/
+/*  --iris: #c4a7e7;*/
+/**/
+/*  --highlightLow: #21202e;*/
+/*  --highlightMed: #403d52;*/
+/*  --highlightHigh: #524f67;*/
+/*}*/
+
+/*If you are reading this, im sorry this is so ugly but its for me*/
+
+
+
+* {
+  font-family:
+    Hack Nerd Font;
+  font-size: 14px;
+  /*color: #e0def4;*/
+}
+
+/* main waybar */
+window#waybar {
+  /*background: rgba(25, 23, 36, 0);*/
+  background: transparent;
+}
+
+/* when hovering over modules */
+tooltip {
+  background: #403d52;
+  border-radius: 5%;
+}
+
+.modules-right {}
+
+
+.modules-left {}
+
+.modules-center {}
+
+#workspaces button {
+  /*border: 1 solid #eceff4;*/
+  border-radius: 0em;
+  padding: 2px;
+  padding-right: 4px;
+  margin: 1px 1px;
+  color: #eceff4;
+}
+
+/* Sets active workspace to have a solid line on the bottom */
+#workspaces button.active {
+  transition: all 0.5s ease-in-out;
+  color: #88c0d0;
+  border-right: 1 solid #88c0d0;
+  background-color: inherit;
+}
+
+/* More workspace stuff for highlighting on hover */
+#workspaces button.focused {}
+
+#workspaces button.urgent {}
+
+#workspaces button:hover {
+  border: 1 solid #eceff4;
+  border-radius: 1em;
+  background-color: #4c566a;
+}
+
+/* Sets background, padding, margins, and borders for (all) modules */
+#network,
+#cpu,
+#memory,
+#pulseaudio,
+#battery,
+#temperature,
+#clock,
+#battery,
+#pulseaudio {
+
+  color: #eceff4;
+  margin: 4px 0px;
+  border: 1px solid #eceff4;
+  border-radius: 10px;
+}
+
+#custom-arch {
+  padding: 4px;
+  font-size: 18px;
+  margin: 4px 0px;
+  border: 1px solid #eceff4;
+  border-radius: 10px;
+
+  color: #eceff4;
+
+
+}
+
+#clock {
+  margin: 0px;
+  padding: 0px;
+  padding-right: 6px;
+}
+
+#pulseaudio {
+  padding: 8px 0px;
+}
+
+#temperature {
+  padding: 8px 6px;
+}
+
+#battery {
+  padding: 6px 0px;
+}
+
+#clock {
+  padding-left: 8px;
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+#temperature.critical {
+  color: #bf616a;
+}
+
+#pulseaudio #clock {}
+
+#battery {
+  font-size: 16px;
+
+  color: #eceff4;
+}
+
+#battery.warning {
+  color: #ebcb8b;
+}
+
+#battery.critical {
+  color: #bf616a;
+}
+
+#battery.charging {
+  color: #a3be8c;
+}
+
+#custom-notification {
+  padding: 4px;
+}
+
+#custom-logout {
+  padding: 4px;
+  font-size: 18px;
+  margin: 4px 0px;
+  /*border: 1px solid #eceff4;*/
+  border-radius: 10px;
+
+  color: #eceff4;
+
+}
+
+#custom-logout:hover {
+  background-color: #4c566a;
+}
+
+
+
+/* Hide window module when not focused on window or empty workspace */
+window#waybar.empty #window {
+  padding: 0;
+  margin: 0;
+  opacity: 0;
+}

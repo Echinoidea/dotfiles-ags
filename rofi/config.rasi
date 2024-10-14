@@ -1,0 +1,106 @@
+
+@import "~/.cache/wal/colors-rofi-dark"
+
+configuration {
+    font: "MapleMono 11";
+
+
+    drun {
+        display-name: " ";
+    }
+    run {
+        display-name: " ";
+    }
+    timeout {
+        delay: 30;
+        action: "kb-cancel";
+    }
+}
+
+
+window {
+    border:           0;
+    border-radius:    0;
+    padding:          8;
+    width:  400px;
+    height: 340px;
+}
+mainbox {
+    border:  0;
+    padding: 4px;
+}
+message {
+    border:       0px;
+    padding:      1px;
+}
+textbox {
+}
+listview {
+    fixed-height: 0;
+    border:       0px;
+    spacing:      4px ;
+    scrollbar:    false;
+    padding:      10px 5px 5px;
+}
+element {
+    border:  0;
+    padding: 4px ;
+    border-radius: 14px;
+} 
+element.normal.normal {
+    background-color: transparent;
+}
+element.normal.active {
+}
+element.selected.normal {
+}
+element.alternate.normal {
+}
+scrollbar {
+    border-radius:  2px;
+    width:          2px ;
+    border:         0;
+    handle-width:   8px ;
+    padding:        0;
+}
+sidebar {
+    border:       2px dash 0px 0px ;
+}
+button.selected {
+    background-color: inherit;
+}
+inputbar {
+    spacing:    0;
+    padding:    10px;
+    margin:     0   4px;
+    children:   [ prompt,textbox-prompt-colon,entry,case-indicator ];
+}
+case-indicator {
+    spacing:    0;
+}
+entry {
+    placeholder: "Search...";
+    background-color: transparent;
+}
+prompt {
+    spacing:    0;
+    background-color: transparent;
+}
+element {
+    spacing: 0.5em;
+}
+element-text {
+    background-color: inherit;
+    text-color: inherit;
+    vertical-align: 0.5;
+}
+element-icon {
+    size: 1.4em;
+    background-color: transparent;
+}
+textbox-prompt-colon {
+    expand:     false;
+    str:        "│";
+    margin:     0px 0.3em 0em 0em ;
+    background-color: transparent;
+}

@@ -1,0 +1,126 @@
+{
+    "reload_style_on_change": true,
+    "layer": "top",
+    "position": "left",
+    "modules-left": ["custom/arch", "clock"],
+    "modules-center": [ "hyprland/workspaces"],
+    "modules-right": ["pulseaudio",  "temperature", "battery",  "custom/logout"],
+    "hyprland/window": {
+        "max-length": 50
+    },
+
+    
+
+    "hyprland/workspaces": {
+      "format": "{icon}",
+      "format-icons": {
+        "1": "<span font='14'>󰈹</span>",
+        "2": "<span font='14'></span>"
+      },
+      "persistent-workspaces": {"eDP-1": [1, 2, 3, 4, 5]} 
+    },
+
+    "network": {
+      "interface": "wlan0",
+      "interval": 10,
+      "format-wifi": "{signalStrength}% ",
+      "format-ethernet": "{ipaddr}/{cidr} 󰊗",
+      "format-disconnected": "", //An empty format will hide the module.
+      "tooltip-format": "{ifname} via {gwaddr} 󰊗",
+      "tooltip-format-wifi": "{essid} ({signalStrength}%) ",
+      "tooltip-format-ethernet": "{ifname} ",
+      "tooltip-format-disconnected": "󰤮",
+      "max-length": 50
+    },
+
+    "pulseaudio": {
+        "format": "{icon}",
+        "format-bluetooth": "{volume}% {icon}",
+        "tooltip": true,
+        "tooltip-format": "{volume}%",
+        "format-muted": "",
+        "format-icons": {
+          "alsa_output.pci-0000_00_1f.3.analog-stereo": "",
+          "alsa_output.pci-0000_00_1f.3.analog-stereo-muted": "",
+          "headphones": "",
+          "default": ["", ""]
+        },
+        "scroll-step": 5,
+        "on-click": "pavucontrol"
+    },
+    "cpu": {
+      "interval": 10,
+      "format": "{usage}% "
+    },
+
+    "memory": {
+      "interval": 10,
+      "format": "{}% "
+    },
+
+    "temperature": {
+      "hwmon-path": "/sys/devices/platform/coretemp.0/hwmon/hwmon6/temp1_input",
+      "interval": 10,
+      "critical-threshold": 90,
+      "format": "{temperatureC}°",
+      "format-critical": "{temperatureC}°",
+      "tooltip": false
+    },
+
+    "battery": {
+        "format": "{icon}",
+        "format-critical": "{icon}",
+        "tooltip-format": "{capacity}%",
+        "format-icons": ["󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"],
+        "states": {
+          "warning": 25,
+          "critical": 10 
+        }
+    },
+    
+    "clock": {
+        "format": "{:%I\n%M<span >\n\n%m\n%d</span>}",
+        "format-alt": "{:%I\n%M }",
+        "tooltip-format":  "{:%I\n%M }"
+    },
+    "custom/logout": {
+      "format": "󰐥",
+      "on-click": "wlogout",
+      "tooltip": false
+    },
+
+    "custom/arch": {
+      "format": "󰣇",
+      "on-click": "/home/gabriel/.config/waybar/scripts/theme-change.sh",
+      "tooltip": false
+    }, 
+    
+    "custom/notification": {
+       "tooltip": false,
+       "format": "",
+       "format-icons": {
+         "notification": "",
+         "none": "",
+         "dnd-notification": "",
+         "dnd-none": "",
+         "inhibited-notification": "",
+         "inhibited-none": "",
+         "dnd-inhibited-notification": "",
+         "dnd-inhibited-none": ""
+       },
+       "return-type": "json",
+       "exec-if": "which swaync-client",
+       "exec": "swaync-client -swb",
+       "on-click": "swaync-client -t -sw",
+       "on-click-right": "swaync-client -d -sw",
+       "escape": true
+    }
+
+
+    //"network": {
+    //  "interface": "wlan0",
+    //  "format-wifi": "{essid} ({signalstrength}%)",
+    //  "format-disconnected": "Disconnected!"
+    //},
+
+}
