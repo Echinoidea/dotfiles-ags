@@ -4,6 +4,7 @@
 
 # Directory containing images
 DIR=$1
+SATURATE=$2
 
 # Check if directory is provided and exists
 if [[ -z "$DIR" ]]; then
@@ -15,7 +16,7 @@ elif [[ ! -d "$DIR" ]]; then
 fi
 
 # Get a random image from the directory
-RANDOM_IMAGE=$(find "$DIR" -type f \( -iname '*.jpg' -o -iname '*.png' -o -iname '*.jpeg' \) | shuf -n 1)
+RANDOM_IMAGE=$(find "$DIR" -type f \( -iname '*.jpg' -o -iname '*.png' -o -iname '*.jpeg' -o -iname '*.gif' \) | shuf -n 1)
 
 # Check if an image was found
 if [[ -z "$RANDOM_IMAGE" ]]; then
@@ -27,10 +28,9 @@ else
   # Set wallpaper with swww img
   swww img "$RANDOM_IMAGE" --transition-type left --filter Nearest --transition-fps 30 --transition-step 2 --transition-duration 1 
   
-  sleep 0.2
   # sleep 0.5
   # Apply the colorscheme with wal
-  wal -i "$RANDOM_IMAGE" 
+  wal -i "$RANDOM_IMAGE" --saturate "$SATURATE" 
 fi
 
 exit

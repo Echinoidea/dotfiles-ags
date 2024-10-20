@@ -1,31 +1,54 @@
+import { themeSelector } from "./archctl-theme-selector.js"
+import { archctl } from "./archctl-window.js"
+
 const hyprland = await Service.import("hyprland")
 const notifications = await Service.import("notifications")
-const mpris = await Service.import("mpris")
 const audio = await Service.import("audio")
 const battery = await Service.import("battery")
-const systemtray = await Service.import("systemtray")
+
 
 const time = Variable("", {
-  poll: [1000, 'date "+%H\n%M"'],
+  poll: [1000, 'date "+%I\n%M"'],
 })
 
 const date = Variable("", {
   poll: [1000, 'date "+%m\n%e"'],
 })
 
+const divide = ([total, free]) => free / total
+
+const cpu = Variable(0, {
+  poll: [2000, 'top -b -n 1', out => divide([100, out.split('\n')
+    .find(line => line.includes('Cpu(s)'))
+    .split(/\s+/)[1]
+    .replace(',', '.')])],
+})
+
+const temp = Variable(0, {
+  poll: [1000, 'sensors', out => {
+    const line = out.split('\n').find(line => line.includes("Package id 0:"));
+    if (line) {
+      const tempValue = line.split(/\s+/)[3].replace(/[°C+]/g, '').trim();
+      return parseFloat(tempValue) / 100;
+    }
+    return 0; // Default value if not found
+  }]
+})
+
+
 const dispatch = ws => hyprland.messageAsync(`dispatch workspace ${ws}`);
 
 const activeId = hyprland.active.workspace.bind("id")
 
 const Workspaces = () => Widget.EventBox({
-  onScrollUp: () => dispatch('+1'),
-  onScrollDown: () => dispatch('-1'),
+  onScrollDown: () => dispatch('+1'),
+  onScrollUp: () => dispatch('-1'),
   child: Widget.Box({
     vertical: true,
     class_name: "workspaces",
     children: Array.from({ length: 5 }, (_, i) => i + 1).map(i => Widget.Button({
       class_name: activeId.as(activeWsId => `${i === activeWsId ? "focused" : ""}`),
-      label: `${i}`,
+      label: activeId.as(activeWsId => `${i === activeWsId ? "" : i}`),
       onClicked: () => dispatch(i),
     })),
 
@@ -36,38 +59,10 @@ const Workspaces = () => Widget.EventBox({
   }),
 })
 
-//function Workspaces() {
-//  const activeId = hyprland.active.workspace.bind("id")
-//  const workspaces = hyprland.bind("workspaces")
-//    .as(ws => ws.map(({ id }) => Widget.Button({
-//      on_clicked: () => hyprland.messageAsync(`dispatch workspace ${id}`),
-//      child: Widget.Label(`${id}`),
-//      class_name: activeId.as(i => `${i === id ? "focused" : ""}`),
-//    })))
-//
-//  return Widget.Box({
-//    vertical: true,
-//    class_name: "workspaces",
-//    children: workspaces,
-//  })
-//}
-
-
-function ClientTitle() {
-  return Widget.Label({
-    class_name: "client-title",
-    label: hyprland.active.client.bind("title"),
-  })
-}
-
-
 function Clock() {
   return Widget.Label({
     class_name: "time",
     justification: "right",
-    //xpad: 4,
-    //xalign: 2,
-    //hpack: "end",
     maxWidthChars: 2,
     wrap: true,
     label: date.bind(),
@@ -78,9 +73,6 @@ function DateDisplay() {
   return Widget.Label({
     class_name: "date",
     justification: "right",
-    //xpad: 4,
-    //xalign: 2,
-    //hpack: "end",
     maxWidthChars: 2,
     wrap: true,
     label: time.bind(),
@@ -105,27 +97,6 @@ function Notification() {
     ],
   })
 }
-
-
-function Media() {
-  const label = Utils.watch("", mpris, "player-changed", () => {
-    if (mpris.players[0]) {
-      const { track_artists, track_title } = mpris.players[0]
-      return `${track_artists.join(", ")} - ${track_title}`
-    } else {
-      return "Nothing is playing"
-    }
-  })
-
-  return Widget.Button({
-    class_name: "media",
-    on_primary_click: () => mpris.getPlayer("")?.playPause(),
-    on_scroll_up: () => mpris.getPlayer("")?.next(),
-    on_scroll_down: () => mpris.getPlayer("")?.previous(),
-    child: Widget.Label({ label }),
-  })
-}
-
 
 function Volume() {
   const icons = {
@@ -163,26 +134,27 @@ function Volume() {
   })
 }
 
-
 function BatteryLabel() {
-  const value = battery.bind("percent").as(p => p > 0 ? p / 100 : 0)
-  //const icon = battery.bind("percent").as(p =>
-  //    `battery-level-${Math.floor(p / 10) * 10}-symbolic`)
-  const icon = value.toString()
-
-  const getColor = function() {
-
-    const pr = value.emitter.percent;
+  const value = battery.bind("percent").emitter.percent;
 
 
-    if (pr <= 25) {
-      return "#ed8796"; // Red for <= 25%
-    } else if (pr <= 50) {
-      return "#eed49f"; // Yellow for <= 50%
-    } else {
-      return "#eceff4"; // Green for > 50% (optional)
+  const getColor = function(percent, charging) {
+    let value = battery.bind("percent").emitter.percent
+
+    if (charging) {
+      return "#a3be8c";
     }
-  }
+
+    if (value <= 25) {
+      return "#ed8796";
+    } else if (value <= 50) {
+      return "#eed49f";
+    } else {
+      return "#eceff4";
+    }
+  };
+
+
 
   return Widget.Box({
     class_name: "battery",
@@ -190,63 +162,89 @@ function BatteryLabel() {
     visible: battery.bind("available"),
     children: [
       Widget.CircularProgress({
-        css: 'min-width: 24px;'  // its size is min(min-height, min-width)
+        css: battery.bind("charging").as((charging) =>
+          'min-width: 24px;'
           + 'min-height: 24px;'
-          + 'font-size: 2px;' // to set its thickness set font-size on it
-          + 'margin: 1px;' // you can set margin on it
-          + 'background-color: #171717;' // set its bg color
-          + `color: ${getColor()};`, // set its g color
+          + 'font-size: 2px;'
+          + 'margin: 1px;'
+          + 'background-color: #171717;'
+          + `color: ${getColor(value, charging)};`
+        ),
         rounded: false,
         inverted: false,
         startAt: 0.75,
         value: battery.bind('percent').as(p => p / 100),
         child: Widget.Label({
           className: "battery-label",
-          //label: value.as(p => `󱐋${Math.round(p * 100)}`),
           label: "󱐋"
         })
-
-
       }),
     ],
   })
 }
 
-
-function SysTray() {
-  const items = systemtray.bind("items")
-    .as(items => items.map(item => Widget.Button({
-      child: Widget.Icon({ icon: item.bind("icon") }),
-      on_primary_click: (_, event) => item.activate(event),
-      on_secondary_click: (_, event) => item.openMenu(event),
-      tooltip_markup: item.bind("tooltip_markup"),
-    })))
-
-  return Widget.Box({
-    children: items,
-  })
-}
-
-
 function ArchCtl() {
   return Widget.Button({
     label: "",
     class_name: "archctl",
-    on_primary_click: () => Utils.exec("/home/gabriel/.config/ags/scripts/change-theme.sh /home/gabriel/pictures/waneella-wallpapers/desktop-favorites/")
+    //on_primary_click: () => Utils.exec("/home/gabriel/.config/ags/scripts/change-theme.sh /home/gabriel/pictures/waneella-wallpapers/desktop-favorites/")
+    on_primary_click: () => {
+      App.ToggleWindow("archctl")
+    }
+  })
+}
 
-    //child: Widget.Label({ label }),
+function CpuTemp() {
+  const getColor = function(value) {
+
+    const tempVal = value;
+    if (tempVal > .9) {
+      return "#ed8796";
+    } else if (tempVal > .75) {
+      return "#eed49f";
+    } else {
+      return "#eceff4";
+    }
+  }
+
+  console.log(temp.getValue())
+
+  return Widget.Box({
+    class_name: "cpu-temp",
+    vertical: true,
+    children: [
+      Widget.CircularProgress({
+        css: temp.bind("value").as((value) =>
+          'min-width: 24px;'
+          + 'min-height: 24px;'
+          + 'font-size: 2px;'
+          + 'margin: 1px;'
+          + 'background-color: #171717;'
+          + `color: ${getColor(value)};`
+        ),
+        rounded: false,
+        inverted: false,
+        startAt: 0.75,
+        value: temp.bind(),
+        child: Widget.Label({
+          className: "cpu-temp-label",
+          label: "󰔄"
+        })
+      }),
+    ],
   })
 }
 
 // layout of the bar
-function Left() {
+function Top() {
   return Widget.Box({
     className: "modules-top",
     vertical: true,
-    spacing: 4,
+    spacing: 8,
     children: [
       ArchCtl(),
       BatteryLabel(),
+      CpuTemp()
     ],
   })
 }
@@ -260,7 +258,7 @@ function Center() {
   })
 }
 
-function Right() {
+function Bottom() {
   return Widget.Box({
     className: "modules-bottom",
     spacing: 8,
@@ -282,9 +280,9 @@ function Bar(monitor = 0) {
     exclusivity: "exclusive",
     child: Widget.CenterBox({
       vertical: true,
-      start_widget: Left(),
+      start_widget: Top(),
       center_widget: Center(),
-      end_widget: Right(),
+      end_widget: Bottom(),
     }),
   })
 }
@@ -294,7 +292,8 @@ App.config({
   style: "./style.css",
   windows: [
     Bar(),
-
+    archctl,
+    themeSelector
     // you can call it, for each monitor
     // Bar(0),
     // Bar(1)

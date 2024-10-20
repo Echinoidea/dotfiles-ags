@@ -1,0 +1,12 @@
+.settings-button {
+  background: rgba(236, 239, 244, 0.2);
+  color: red;
+}
+
+.archctl-window {
+
+  /*background: rgba(236, 239, 244, 0.2);*/
+  background: blue;
+  color: red;
+  padding: 24px;
+}
